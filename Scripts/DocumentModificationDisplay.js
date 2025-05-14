@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Document Modification Display
 // @namespace    http://tampermonkey.net/
-// @version      0.5.1
+// @version      0.5.2
 // @updateURL    https://raw.githubusercontent.com/Airistotal/UserScripts/main/Scripts/DocumentModificationDisplay.js
 // @downloadURL  https://raw.githubusercontent.com/Airistotal/UserScripts/main/Scripts/DocumentModificationDisplay.js
 // @description  Shows when the document was last modified
@@ -109,8 +109,6 @@ function getLastModifiedText() {
 }
 
 function addHintToLastModified(container) {
-    var css_show = "display: block;background: #C8C8C8;margin-left: 28px;padding: 5px;position: fixed;z-index: 1000;width: 183px;left: 95px;bottom: 43px;border: darkgrey dotted;font-size:12px;text-align:center;";
-
     var hintHoverable = document.createElement("sup");
     hintHoverable.setAttribute("style", "margin-left: 3px;cursor: help;");
     hintHoverable.appendChild(document.createTextNode("?"));
@@ -122,6 +120,8 @@ function addHintToLastModified(container) {
 }
 
 function addHintHoverEvents(hintElem) {
+    var css_show = "display: block;background: #C8C8C8;margin-left: 28px;padding: 5px;position: fixed;z-index: 1000;width: 183px;left: 95px;bottom: 43px;border: darkgrey dotted;font-size:12px;text-align:center;";
+
     hintElem.addEventListener("mouseenter", function(event) {
         var tooltip = document.getElementById("now-hint-tooltip");
         tooltip.setAttribute("style", css_show);
