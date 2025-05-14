@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Document Modification Display
 // @namespace    http://tampermonkey.net/
-// @version      0.5
+// @version      0.5.1
 // @updateURL    https://raw.githubusercontent.com/Airistotal/UserScripts/main/Scripts/DocumentModificationDisplay.js
 // @downloadURL  https://raw.githubusercontent.com/Airistotal/UserScripts/main/Scripts/DocumentModificationDisplay.js
 // @description  Shows when the document was last modified
@@ -136,7 +136,7 @@ function addHintHoverEvents(hintElem) {
 function getTooltip() {
     var tooltip = document.createElement("div");
     tooltip.setAttribute("id", "now-hint-tooltip");
-    tooltip.setAttribute("style", css_hide);
+    tooltip.setAttribute("style", "display: none");
     tooltip.appendChild(document.createTextNode("This is likely a dynamic page."));
 
     return tooltip;
