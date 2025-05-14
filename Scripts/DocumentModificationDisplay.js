@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Document Modification Display
 // @namespace    http://tampermonkey.net/
-// @version      0.4.1
+// @version      0.5
 // @updateURL    https://raw.githubusercontent.com/Airistotal/UserScripts/main/Scripts/DocumentModificationDisplay.js
 // @downloadURL  https://raw.githubusercontent.com/Airistotal/UserScripts/main/Scripts/DocumentModificationDisplay.js
 // @description  Shows when the document was last modified
@@ -16,26 +16,78 @@
 })();
 
 function buildAndAddModificationDisplay() {
-    var modification_display = createModificationContainer();
-
-    addLastModified(modification_display);
-    addSitemapXml(modification_display);
-
-    var body = document.getElementsByTagName("BODY")[0];
-    body.appendChild(modification_display);
+    document.getElementsByTagName("BODY")[0].appendChild(createModificationContainer());
 }
 
 function createModificationContainer() {
     var modification_display = document.createElement("div");
-    modification_display.setAttribute("class", "modification-container");
-    var css = "position: fixed;bottom: -3px;left: -3px;padding: 5px;border: solid grey;border-radius: 3px;background-color: lightgray;z-index:1001;color:grey!important;";
-    modification_display.setAttribute("style", css);
+    modification_display.setAttribute("id", "modification-container");
+    addMinMaxButton(modification_display);
+
+    var modification_content = document.createElement("div");
+    modification_content.setAttribute("id", "modification_content");
+    modification_display.appendChild(modification_content);
+
+    addLastModified(modification_content);
+    addSitemapXml(modification_content);
 
     return modification_display;
 }
 
+var modification_display_open = true;
+
+function addMinMaxButton(container) {
+    var minMaxButton = document.createElement("div");
+    minMaxButton.setAttribute("id", "min-max-button");
+    minMaxButton.appendChild(document.createTextNode("-"));
+    minMaxButton.setAttribute("style", "position: absolute;right: 0;top: 0;line-height: 9px;border-left: solid 2px;border-bottom: solid 2px;height: 14px;width: 15px;text-align: center;");
+
+    minMaxButton.addEventListener("click", function(e) {
+        var modContainer = document.getElementById("modification-container");
+
+        if (modification_display_open) {
+            minimizeModContainer(modContainer, minMaxButton);
+        } else {
+            maximizeModContainer(modContainer, minMaxButton);
+        }
+    });
+
+    container.appendChild(minMaxButton);
+    maximizeModContainer(container, minMaxButton);
+}
+
+var cached_modification_content;
+
+function minimizeModContainer(elem, button) {
+    button.innerHTML = '';
+    button.appendChild(document.createTextNode("+"));
+
+    cached_modification_content = document.getElementById("modification_content").innerHTML;
+
+    var minimized_css = "position: fixed;height: 20px;bottom: -3px;left: -3px;padding-right: 20px;border: solid grey;border-radius: 3px;background-color: lightgray;z-index:1001;color:grey!important;";
+    elem.setAttribute("style", minimized_css);
+    document.getElementById("modification_content").innerHTML = '';
+
+    modification_display_open = false;
+}
+
+function maximizeModContainer(elem, button) {
+    button.innerHTML = '';
+    button.appendChild(document.createTextNode("-"));
+
+    var maximized_css = "position: fixed;bottom: -3px;left: -3px;padding: 5px;padding-right: 20px;border: solid grey;border-radius: 3px;background-color: lightgray;z-index:1001;color:grey!important;";
+    elem.setAttribute("style", maximized_css);
+
+    if (cached_modification_content) {
+        document.getElementById("modification_content").innerHTML = cached_modification_content;
+    }
+
+    modification_display_open = true;
+}
+
 function addLastModified(container) {
     var last_modified_container = document.createElement("div");
+    last_modified_container.setAttribute("id", "last_modified_container");
     var last_modfied_text = getLastModifiedText();
     var last_modified_content = document.createTextNode(last_modfied_text);
     last_modified_container.appendChild(last_modified_content);
@@ -58,29 +110,36 @@ function getLastModifiedText() {
 
 function addHintToLastModified(container) {
     var css_show = "display: block;background: #C8C8C8;margin-left: 28px;padding: 5px;position: fixed;z-index: 1000;width: 183px;left: 95px;bottom: 43px;border: darkgrey dotted;font-size:12px;text-align:center;";
-    var css_hide = "display: none";
 
+    var hintHoverable = document.createElement("sup");
+    hintHoverable.setAttribute("style", "margin-left: 3px;cursor: help;");
+    hintHoverable.appendChild(document.createTextNode("?"));
+    hintHoverable.appendChild(getTooltip());
+
+    addHintHoverEvents(hintHoverable);
+
+    container.appendChild(hintHoverable);
+}
+
+function addHintHoverEvents(hintElem) {
+    hintElem.addEventListener("mouseenter", function(event) {
+        var tooltip = document.getElementById("now-hint-tooltip");
+        tooltip.setAttribute("style", css_show);
+    });
+
+    hintElem.addEventListener("mouseleave", function(event) {
+        var tooltip = document.getElementById("now-hint-tooltip");
+        tooltip.setAttribute("style", "display: none");
+    });
+}
+
+function getTooltip() {
     var tooltip = document.createElement("div");
     tooltip.setAttribute("id", "now-hint-tooltip");
     tooltip.setAttribute("style", css_hide);
     tooltip.appendChild(document.createTextNode("This is likely a dynamic page."));
 
-    var hintHoverable = document.createElement("sup");
-    hintHoverable.setAttribute("style", "margin-left: 3px;cursor: help;");
-    hintHoverable.appendChild(document.createTextNode("?"));
-    hintHoverable.appendChild(tooltip);
-
-    hintHoverable.addEventListener("mouseenter", function(event) {
-        var tooltip = document.getElementById("now-hint-tooltip");
-        tooltip.setAttribute("style", css_show);
-    });
-
-    hintHoverable.addEventListener("mouseleave", function(event) {
-        var tooltip = document.getElementById("now-hint-tooltip");
-        tooltip.setAttribute("style", css_hide);
-    });
-
-    container.appendChild(hintHoverable);
+    return tooltip;
 }
 
 var sitemap_loaded = false;
@@ -90,6 +149,7 @@ function addSitemapXml(container) {
     var sitemapUrl = getUrl.protocol + "//" + getUrl.host + "/sitemap.xml";
 
     var sitemap_container = document.createElement("div");
+    sitemap_container.setAttribute("id", "sitemap_xml_link");
     animateSitemapLoad(sitemap_container, 1, 0);
     container.append(sitemap_container);
 
