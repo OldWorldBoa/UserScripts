@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Document Modification Display
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.4
 // @updateURL    https://raw.githubusercontent.com/Airistotal/UserScripts/main/Scripts/DocumentModificationDisplay.js
 // @downloadURL  https://raw.githubusercontent.com/Airistotal/UserScripts/main/Scripts/DocumentModificationDisplay.js
 // @description  Shows when the document was last modified
@@ -28,7 +28,7 @@ function buildAndAddModificationDisplay() {
 function createModificationContainer() {
     var modification_display = document.createElement("div");
     modification_display.setAttribute("class", "modification-container");
-    var css = "position: fixed;bottom: -3px;left: -3px;padding: 5px;border: solid grey;border-radius: 3px;background-color: lightgray;z-index:1001;";
+    var css = "position: fixed;bottom: -3px;left: -3px;padding: 5px;border: solid grey;border-radius: 3px;background-color: lightgray;z-index:1001;color:grey!important;";
     modification_display.setAttribute("style", css);
 
     return modification_display;
@@ -36,9 +36,51 @@ function createModificationContainer() {
 
 function addLastModified(container) {
     var last_modified_container = document.createElement("div");
-    var last_modified_content = document.createTextNode(document.lastModified);
+    var last_modfied_text = getLastModifiedText();
+    var last_modified_content = document.createTextNode(last_modfied_text);
     last_modified_container.appendChild(last_modified_content);
+    
+    if (last_modfied_text.indexOf("Now") !== -1) {
+        addHintToLastModified(last_modified_container);
+    }
+
     container.appendChild(last_modified_container);
+}
+
+function getLastModifiedText() {
+    var now = Date.now();
+    var lastModifiedDate = Date.parse(document.lastModified);
+    var secondsSinceModified = (now - lastModifiedDate) / 1000;
+    var lastModifiedData = secondsSinceModified > 3 ? document.lastModified : "Now";
+
+    return 'Last Modified: ' + lastModifiedData;
+}
+
+function addHintToLastModified(container) {
+    var css_show = "display: block;background: #C8C8C8;margin-left: 28px;padding: 10px;position: absolute;z-index: 1000;width: 162px;left: 90px;top: -33px;border: darkgrey dotted;font-size:12px;";
+    var css_hide = "display: none;";
+
+    var tooltip = document.createElement("div");
+    tooltip.setAttribute("id", "now-hint-tooltip");
+    tooltip.setAttribute("style", css_hide);
+    tooltip.appendChild(document.createTextNode("This is likely a dynamic page."));
+
+    var hintHoverable = document.createElement("sup");
+    hintHoverable.setAttribute("style", "margin-left: 3px;cursor: help;");
+    hintHoverable.appendChild(document.createTextNode("?"));
+    hintHoverable.appendChild(tooltip);
+
+    hintHoverable.addEventListener("mouseenter", function(event) {
+        var tooltip = document.getElementById("now-hint-tooltip");
+        tooltip.setAttribute("style", css_show);
+    });
+
+    hintHoverable.addEventListener("mouseleave", function(event) {
+        var tooltip = document.getElementById("now-hint-tooltip");
+        tooltip.setAttribute("style", css_hide);
+    });
+
+    container.appendChild(hintHoverable);
 }
 
 var sitemap_loaded = false;
@@ -54,27 +96,35 @@ function addSitemapXml(container) {
     checkIfSitemapExists(
         sitemapUrl,
         function() {
-            var sitemap_link = document.createElement("a");
-            sitemap_link.setAttribute("href", sitemapUrl);
-            sitemap_link.setAttribute("target", "_blank");
-            sitemap_link.setAttribute("style", "color: green!important;text-decoration: underline;");
-
-            var sitemap_text = document.createTextNode("Sitemap");
-            sitemap_link.appendChild(sitemap_text);
-
-            sitemap_container.innerHTML = '';
-            sitemap_container.appendChild(sitemap_link);
+            addSitemapXmlSuccess(sitemap_container, sitemapUrl);
         },
         function() {
-            var sitemap_link = document.createElement("a");
-            sitemap_link.setAttribute("style", "color: red!important;text-decoration: underline;text-decoration-style: dotted;");
-
-            var sitemap_text = document.createTextNode("Sitemap not found");
-            sitemap_link.appendChild(sitemap_text);
-
-            sitemap_container.innerHTML = '';
-            sitemap_container.appendChild(sitemap_link);
+            addSitemapXmlFailure(sitemap_container);
         });
+}
+
+function addSitemapXmlSuccess(container, url) {
+    var sitemap_link = document.createElement("a");
+    sitemap_link.setAttribute("href", url);
+    sitemap_link.setAttribute("target", "_blank");
+    sitemap_link.setAttribute("style", "color: green!important;text-decoration: underline;");
+
+    var sitemap_text = document.createTextNode("Sitemap");
+    sitemap_link.appendChild(sitemap_text);
+
+    container.innerHTML = '';
+    container.appendChild(sitemap_link);
+}
+
+function addSitemapXmlFailure(container) {
+    var sitemap_link = document.createElement("a");
+    sitemap_link.setAttribute("style", "color: red!important;text-decoration: underline;text-decoration-style: dotted;");
+
+    var sitemap_text = document.createTextNode("Sitemap not found");
+    sitemap_link.appendChild(sitemap_text);
+
+    container.innerHTML = '';
+    container.appendChild(sitemap_link);
 }
 
 function animateSitemapLoad(sitemap_container, direction, iteration) {
