@@ -57,8 +57,8 @@ function getLastModifiedText() {
 }
 
 function addHintToLastModified(container) {
-    var css_show = "display: block;background: #C8C8C8;margin-left: 28px;padding: 10px;position: absolute;z-index: 1000;width: 162px;left: 90px;top: -33px;border: darkgrey dotted;font-size:12px;";
-    var css_hide = "display: none;";
+    var css_show = "display: block;background: #C8C8C8;margin-left: 28px;padding: 5px;position: fixed;z-index: 1000;width: 183px;left: 95px;bottom: 43px;border: darkgrey dotted;font-size:12px;text-align:center;";
+    var css_hide = "display: none";
 
     var tooltip = document.createElement("div");
     tooltip.setAttribute("id", "now-hint-tooltip");
