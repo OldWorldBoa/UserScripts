@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Document Modification Display
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @updateURL    https://github.com/Airistotal/UserScripts/blob/main/Scripts/DocumentModificationDisplay.js
 // @downloadURL  https://github.com/Airistotal/UserScripts/blob/main/Scripts/DocumentModificationDisplay.js
 // @description  Shows when the document was last modified
@@ -9,7 +9,6 @@
 // @match        *://*/*
 // @grant        none
 // ==/UserScript==
-
 (function() {
     'use strict';
 
@@ -58,7 +57,7 @@ function addSitemapXml(container) {
             var sitemap_link = document.createElement("a");
             sitemap_link.setAttribute("href", sitemapUrl);
             sitemap_link.setAttribute("target", "_blank");
-            sitemap_link.setAttribute("style", "color: green;text-decoration: underline;");
+            sitemap_link.setAttribute("style", "color: green!important;text-decoration: underline;");
 
             var sitemap_text = document.createTextNode("Sitemap");
             sitemap_link.appendChild(sitemap_text);
@@ -68,7 +67,7 @@ function addSitemapXml(container) {
         },
         function() {
             var sitemap_link = document.createElement("a");
-            sitemap_link.setAttribute("style", "color: red;text-decoration: underline;text-decoration-style: dotted;");
+            sitemap_link.setAttribute("style", "color: red!important;text-decoration: underline;text-decoration-style: dotted;");
 
             var sitemap_text = document.createTextNode("Sitemap not found");
             sitemap_link.appendChild(sitemap_text);
@@ -83,6 +82,7 @@ function animateSitemapLoad(sitemap_container, direction, iteration) {
     sitemap_container.appendChild(
         document.createTextNode(
             getLoadingMessageForFrame(iteration)));
+    sitemap_container.setAttribute("style", "color: darkgrey!important;");
 
     iteration += direction;
     if (iteration === 3) {
@@ -122,4 +122,3 @@ function checkIfSitemapExists(url, success, failure) {
     xhttp.open("GET", url, true);
     xhttp.send();
 }
-
