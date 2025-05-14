@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Document Modification Display
 // @namespace    http://tampermonkey.net/
-// @version      0.2
-// @updateURL    https://github.com/Airistotal/UserScripts/blob/main/Scripts/DocumentModificationDisplay.js
-// @downloadURL  https://github.com/Airistotal/UserScripts/blob/main/Scripts/DocumentModificationDisplay.js
+// @version      0.3
+// @updateURL    https://raw.githubusercontent.com/Airistotal/UserScripts/main/Scripts/DocumentModificationDisplay.js
+// @downloadURL  https://raw.githubusercontent.com/Airistotal/UserScripts/main/Scripts/DocumentModificationDisplay.js
 // @description  Shows when the document was last modified
 // @author       You
 // @match        *://*/*
